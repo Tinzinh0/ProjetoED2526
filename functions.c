@@ -3,6 +3,12 @@
 // Filas das caixas são listas ligadas.
 // Para melhorar, pode-se usar hashing para produtos ou balancear a árvore.
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "structs.h"
+#include "functions.h"
+
 // Função para verificar se já existe um sistema salvo
 // Abre os ficheiros clientes.txt e funcionarios.txt e verifica se têm dados
 int Verificar_Sistema(){
@@ -271,4 +277,14 @@ void Adicionar_Cliente(Sistema *sis) {
     } else {
         printf("Caixa inválida.\n");
     }
+}
+
+// Termina o sistema, guardando dados e libertando memória
+void Terminar_Sistema(Sistema sis) {
+    Guardar_Dados(sis);
+    liberar_arvore(sis.raiz_clientes);
+    liberar_lista_empregados(sis.empregados);
+    // Liberar outras listas se necessário
+    printf("Sistema terminado.\n");
+    exit(0);
 }
