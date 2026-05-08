@@ -1,67 +1,83 @@
-#ifndef MENUS_H
-#define MENUS_H
+#ifndef STRUCTS_H
+#define STRUCTS_H
 
-#define MAX_ESPERA 120 
-#define N_CAIXAS 6 
-#define TEMPO_ATENDIMENTO_PRODUTO  6 
-#define MAX_PRECO 40 
-#define MAX_FILA 7 
-#define MIN_FILA 3
-#define Tempo_Min_Passagem 2
-#define Tempo_Max_Passagem TEMPO_MAX_PASSAGEM
-#define Preço_Min_Produto 0.01
-#define Preço_Max_Produto MAX_PRECO
+// Definições de constantes para o sistema
+#define MAX_ESPERA 120  // Tempo máximo de espera para um cliente
+#define N_CAIXAS 6      // Número de caixas no sistema
+#define TEMPO_ATENDIMENTO_PRODUTO 6  // Tempo para atender um produto
+#define MAX_PRECO 40    // Preço máximo de um produto
+#define MAX_FILA 7      // Tamanho máximo da fila
+#define MIN_FILA 3      // Tamanho mínimo da fila
+#define Tempo_Min_Passagem 2  // Tempo mínimo para passagem
+#define Tempo_Max_Passagem 10  // Tempo máximo para passagem (corrigido)
+#define Preço_Min_Produto 0.01  // Preço mínimo de um produto
+#define Preço_Max_Produto MAX_PRECO  // Preço máximo de um produto
+#define MAX_EMPREGADOS 100  // Número máximo de empregados
+#define MAX_CLIENTES 1000  // Número máximo de clientes
 
+// Estrutura para representar um produto
+typedef struct Produto {
+    int Id_Produto;      // Identificador único do produto
+    float Preco_Produto; // Preço do produto
+    char Tipo[20];       // Tipo do produto (e.g., "alimento", "bebida")
+} Produto;
 
+// Lista ligada para produtos (usada para listas de produtos de um cliente)
+typedef struct ListaProdutos {
+    Produto produto;              // Dados do produto
+    struct ListaProdutos *proximo; // Ponteiro para o próximo produto na lista
+} ListaProdutos;
 
-typedef struct{
-    int Id;//fazer um formato para o ID "PX" com X=número de cliente
-    char *Nome[40];//isto de perferência faz-se com memória dinâmica por isso é que começa com 39 espaços livres
-    int Idade;//só para tornar completo. Se for menor não pode comprar certos tipos de produto
-    Produto *Produtos;
-    int Total_Produtos;//para sabermos o numero de items que um cliente trás.
-    int Tempo_Atendimento;//calculo do tempo médio que cada item demora a ser registado * quantidade de items
-    //este tempo tem que ser menor que MSX_ESPERA (que neste caso é 120)
-}Cliente;
+// Estrutura para representar um cliente
+typedef struct Cliente {
+    int Id;                    // Identificador único do cliente
+    char Nome[40];             // Nome do cliente
+    int Idade;                 // Idade do cliente
+    ListaProdutos *produtos;   // Lista de produtos que o cliente tem
+    int Total_Produtos;        // Número total de produtos
+    int Tempo_Atendimento;     // Tempo estimado para atendimento
+} Cliente;
 
-typedef struct{
-    Cliente *Cliente;
-    int Total_Clientes;
-    struct FilaCliente *proximo;
-}FilaCliente, *PTR_FilaCliente;
+// Estrutura para a fila de clientes numa caixa (lista ligada FIFO)
+typedef struct FilaCliente {
+    Cliente cliente;              // Dados do cliente na fila
+    struct FilaCliente *proximo;  // Ponteiro para o próximo cliente na fila
+} FilaCliente;
 
-typedef struct{
-    int Id_Produto;//o ID já deve ser capás de nos indicar o resto das informações relevantes do produto
-    int Preco_Produto;
-    char Tipo[20];
-    // o tipo vai funcionar da seguinte maneira: 
-    //vamos ter presets. se o tipo não corresponder a algum dos presets o código avisa e dá a oportunidade ao utilizador de corrigir
-}Produto, *PTR_Produto;
+// Estrutura para representar um empregado
+typedef struct Empregado {
+    int Id;         // Identificador único do empregado
+    char Nome[40];  // Nome do empregado
+} Empregado;
 
-typedef struct{
-    char *Nome[40];//isto de perferência faz-se com memória dinâmica por isso é que começa com 39 espaços livres
-    //não sei que caracteristicas colocar a mais que sejam uteis e façam sentido neste contexto
-}Empregado;
+// Lista ligada para empregados
+typedef struct ListaEmpregados {
+    Empregado empregado;              // Dados do empregado
+    struct ListaEmpregados *proximo;  // Ponteiro para o próximo empregado
+} ListaEmpregados;
 
-typedef struct{
-    int NumeroCaixa;
-    FilaCliente *Fila;
-    Empregado *Empregado_Caixa;
-    int Estado;//0=fechada, 1=aberta, 2=ocupada
-}Caixa, *PTR_Caixa;
+// Estrutura para representar uma caixa
+typedef struct Caixa {
+    int NumeroCaixa;         // Número da caixa (1 a N_CAIXAS)
+    FilaCliente *inicio_fila; // Início da fila de clientes
+    Empregado *empregado;     // Empregado atribuído à caixa
+    int Estado;               // Estado: 0=fechada, 1=aberta, 2=ocupada
+} Caixa;
 
-typedef struct{
-    char Nome_Programa [40];
-    int Num_Empregados;
-    Empregado Sis_Empregados[MAX_EMPREGADOS];
-    Caixa Sis_Caixas[N_CAIXAS];
-    //como os empregados são uma variavel menos complexa, podemos só fazer listas para este
-    int N_Produtos;
-    Produto Sis_Produtos[a/*produtos em outlet*/];
-    //os produtos já são maiscomplexos e ligados ao cliente portanto podemos utilizar outros metodos como hashing
-    int Num_Clientes;
-    Cliente Sis_clientes[total_Clientes];
-    //os clientes são provavelmente a variavel mais complexa que temos aqui portanto vou precisar do melhor uso de metodos de organização possível.
-}Sistema;
+// Nó da árvore binária para clientes (ordenada por ID para busca eficiente)
+typedef struct NoCliente {
+    Cliente cliente;           // Dados do cliente
+    struct NoCliente *esq;     // Subárvore esquerda (IDs menores)
+    struct NoCliente *dir;     // Subárvore direita (IDs maiores)
+} NoCliente;
+
+// Estrutura principal do sistema
+typedef struct Sistema {
+    char Nome_Programa[40];       // Nome do programa
+    ListaEmpregados *empregados;  // Lista de empregados
+    Caixa caixas[N_CAIXAS];       // Array de caixas
+    ListaProdutos *produtos;      // Lista de produtos disponíveis
+    NoCliente *raiz_clientes;     // Raiz da árvore de clientes
+} Sistema;
 
 #endif
